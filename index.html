@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Orbit Todo — a solar system for your work. Urgent tasks fall toward the sun. Fling them in to finish."
+    />
+    <title>Orbit Todo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@320;400;500;600;700&family=Syne:wght@700;800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="sky" aria-label="Solar system of tasks"></canvas>
+
+      <header class="hud hud-top">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <div>
+            <h1>Orbit Todo</h1>
+            <p id="streak" class="streak">Ignite a stellar streak by burning a task today.</p>
+          </div>
+        </div>
+        <div class="hud-actions" role="toolbar" aria-label="Orbit controls">
+          <button type="button" id="btn-focus" aria-pressed="false" title="Focus mode (F)">
+            Focus
+          </button>
+          <button type="button" id="btn-list" aria-pressed="false" title="List view (L)">
+            List
+          </button>
+          <button type="button" id="btn-mute" aria-pressed="false" title="Mute (M)">Sound</button>
+          <button type="button" id="btn-motion" aria-pressed="false" title="Reduced motion (R)">
+            Motion
+          </button>
+          <button type="button" id="btn-help" title="Keyboard help (?)">?</button>
+        </div>
+      </header>
+
+      <p id="live" class="sr-only" aria-live="polite"></p>
+
+      <form id="capture" class="capture" hidden>
+        <p class="capture-kicker">Name a new world</p>
+        <label class="sr-only" for="capture-input">New task</label>
+        <input
+          id="capture-input"
+          name="task"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="Ship the landing page tomorrow 5pm #work !4"
+        />
+        <p id="capture-preview" class="capture-preview">Enter to launch · Esc to cancel</p>
+      </form>
+
+      <aside id="inspector" class="panel inspector" hidden>
+        <header class="panel-head">
+          <p class="panel-kicker">Orbital dossier</p>
+          <button type="button" id="inspector-close" class="icon-btn" aria-label="Close inspector">
+            ×
+          </button>
+        </header>
+        <label class="field">
+          <span>Name</span>
+          <input id="field-title" maxlength="80" />
+        </label>
+        <label class="field">
+          <span>Due (natural language or empty)</span>
+          <input id="field-due" placeholder="fri 5pm, tomorrow, oct 15…" />
+        </label>
+        <p id="field-due-readout" class="readout"></p>
+        <fieldset class="field">
+          <legend>Spectrum</legend>
+          <div id="field-category" class="pills"></div>
+        </fieldset>
+        <label class="field">
+          <span>Mass / effort</span>
+          <input id="field-effort" type="range" min="1" max="5" step="1" />
+        </label>
+        <label class="field">
+          <span>Notes</span>
+          <textarea id="field-notes" rows="3" placeholder="Why this world exists"></textarea>
+        </label>
+        <section class="moons">
+          <h2>Moons</h2>
+          <ul id="moon-list"></ul>
+          <div class="moon-add">
+            <label class="sr-only" for="moon-input">Add a moon</label>
+            <input id="moon-input" placeholder="Add a subtask moon" />
+            <button type="button" id="moon-add">Add</button>
+          </div>
+        </section>
+        <div class="panel-actions">
+          <button type="button" id="inspector-complete" class="primary">Offer to the sun</button>
+          <button type="button" id="inspector-restore" hidden>Return from the belt</button>
+          <button type="button" id="inspector-delete" class="danger">Delete</button>
+        </div>
+      </aside>
+
+      <div
+        id="list-view"
+        class="panel list-view"
+        hidden
+        role="dialog"
+        aria-labelledby="list-title"
+      >
+        <header class="panel-head">
+          <div>
+            <p class="panel-kicker">Accessible atlas</p>
+            <h2 id="list-title">Every world, as a list</h2>
+          </div>
+          <button type="button" id="list-close" class="icon-btn" aria-label="Close list">×</button>
+        </header>
+        <div class="list-tabs" role="tablist">
+          <button type="button" id="tab-open" role="tab" aria-selected="true">In orbit</button>
+          <button type="button" id="tab-belt" role="tab" aria-selected="false">Asteroid belt</button>
+        </div>
+        <ul id="task-list" class="task-list"></ul>
+      </div>
+
+      <div id="help" class="panel help" hidden role="dialog" aria-labelledby="help-title">
+        <header class="panel-head">
+          <h2 id="help-title">How to fly this system</h2>
+          <button type="button" id="help-close" class="icon-btn" aria-label="Close help">×</button>
+        </header>
+        <ul class="help-list">
+          <li><kbd>N</kbd> or start typing to capture a task. Dates like <code>tomorrow 5pm</code> and <code>fri</code> just work.</li>
+          <li>Drag or fling a planet into the sun to complete it. <kbd>Enter</kbd> offers the selected world.</li>
+          <li>Click a planet for moons, effort, and notes. Size is effort; color is a tag; radius is urgency.</li>
+          <li><kbd>←</kbd> <kbd>→</kbd> cycle worlds · <kbd>F</kbd> focus the most urgent · <kbd>L</kbd> list view · <kbd>M</kbd> mute · <kbd>R</kbd> reduced motion.</li>
+          <li>Finished tasks become a faint asteroid belt. Open the list to browse or restore them.</li>
+        </ul>
+      </div>
+
+      <footer class="hud hud-bottom">
+        <p id="hint">
+          Press <kbd>N</kbd> to name a world · drag into the sun to finish · <kbd>?</kbd> help
+        </p>
+        <button type="button" id="btn-capture-mobile" class="fab">+ New</button>
+      </footer>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
